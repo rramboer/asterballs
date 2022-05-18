@@ -44,6 +44,6 @@ const player = new Player(x, y, 30, 'blue')
 player.draw()
 
 addEventListener('click', (event) => {
-    const projectile = new Projectile(event.clientX, event.clientY, 5, 'red', null)
+    const projectile = new Projectile(x, y, 5, 'red', null)
     projectile.draw()
 })
