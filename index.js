@@ -35,6 +35,12 @@ class Projectile {
         c.fillStyle = this.color
         c.fill()
     }
+
+    update() {
+        this.draw()
+        this.x = this.x + this.velocity.x
+        this.y = this.y + this.velocity.y
+    }
 }
 
 const x = canvas.width / 2
@@ -43,7 +49,20 @@ const y = canvas.height / 2
 const player = new Player(x, y, 30, 'blue')
 player.draw()
 
+const projectiles = []
+
+function animate() {
+    requestAnimationFrame(animate)
+    projectiles.forEach((projectile) => {
+        projectile.update()
+    })
+}
+
 addEventListener('click', (event) => {
-    const projectile = new Projectile(x, y, 5, 'red', null)
-    projectile.draw()
+    projectiles.push(new Projectile(x, y, 5, 'red', {
+        x: 1,
+        y: 1
+    }))
 })
+
+animate()
