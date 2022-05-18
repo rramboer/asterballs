@@ -84,7 +84,7 @@ function spawnEnemies() {
             y = Math.random() * canvas.height
         } else {
             x = Math.random() * canvas.width
-            y = Math.random < 0.5 ? 0 - radius : canvas.height + radius
+            y = Math.random() < 0.5 ? 0 - radius : canvas.height + radius
         }
 
         const color = 'green'
