@@ -2,8 +2,9 @@
     body{
         margin: 0;
         cursor: crosshair;
+        background: black;
     }
-    div{
+    .scoring{
         position: fixed;
         font-weight: 500;
         font-size: 24px;
@@ -13,8 +14,55 @@
         user-select: none;
         font-family: 'Cascadia Mono', sans-serif;
     }
+    .box {
+        position: fixed;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .box .white-bg{
+        background: white;
+        max-width: 448px;
+        width: 100%;
+        padding: 24px;
+        text-align: center;
+    }
+    .box .white-bg .number{
+        font-weight: bold;
+        font-size: 36px;
+        line-height: 1px;
+    }
+    .box .white-bg .points{
+        font-size: 14px;
+        line-height: 20px;
+        color: rgb(55, 65, 81);
+        font-family: 'Cascadia Mono', sans-serif;
+        margin-bottom: 6px;
+    }
+    .box .white-bg .button{
+        background: #004eff; /* blue from website theme */
+        color: white;
+        width: 100%;
+        padding-top: 20px;
+        padding-bottom: 20px;
+        border-radius: 100%;
+    }
+
 </style>
-<div><span>Score: </span><span id="scoreEl">0</span></div>
+<div class="scoring"><span>Score: </span><span id="scoreEl">0</span></div>
+
+<div class="box" id="modalEl">
+    <div class="white-bg">
+        <h1 class="number" id="bigScoreEl">0</h1>
+        <p class="points">Points</p>
+        <div><button class="button" id="startGameBtn">Start Game</button></div>
+    </div>
+</div>
+
 <canvas></canvas>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.10.4/gsap.min.js"></script>
 <script src="index.js"></script>
