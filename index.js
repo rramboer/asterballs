@@ -243,4 +243,5 @@ startGameBtn.addEventListener('click', () => {
     animate()
     spawnEnemies()
     modalEl.style.display = 'none'
+    startGameBtn.innerHTML = "Restart"
 })
