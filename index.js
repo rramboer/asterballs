@@ -113,7 +113,7 @@ function animate() {
         const dist = Math.hypot(player.x - enemy.x, player.y - enemy.y)
         // end game
         if (dist - enemy.radius - player.radius < 1) {
-            cancelAnimationFrame(AnimationId)
+            cancelAnimationFrame(animationId)
         }
 
         projectiles.forEach((projectile, projectileIndex) => {
