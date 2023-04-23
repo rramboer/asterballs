@@ -1,2 +1,2 @@
 # Play AsterBalls
-https://rramboer.github.io/game
+https://rramboer.github.io/asterballs
