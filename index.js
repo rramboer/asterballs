@@ -8,6 +8,10 @@ const scoreEl = document.querySelector('#scoreEl')
 const startGameBtn = document.querySelector('#startGameBtn')
 const modalEl = document.querySelector('#modalEl')
 const bigScoreEl = document.querySelector('#bigScoreEl')
+const highScoreText = document.querySelector('#highScoreText')
+
+let highScore = parseInt(localStorage.getItem('asterballs_highscore')) || 0
+highScoreText.innerHTML = 'Best: ' + highScore
 
 class Player {
     constructor(x, y, radius, color) {
@@ -188,8 +192,13 @@ function animate() {
         if (dist - enemy.radius - player.radius < 1) {
             cancelAnimationFrame(animationId)
             clearInterval(spawnIntervalId)
+            if (score > highScore) {
+                highScore = score
+                localStorage.setItem('asterballs_highscore', highScore)
+            }
             modalEl.style.display = 'flex'
             bigScoreEl.innerHTML = score
+            highScoreText.innerHTML = 'Best: ' + highScore
         }
 
         projectiles.forEach((projectile, projectileIndex) => {
