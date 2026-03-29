@@ -8,6 +8,10 @@ const scoreEl = document.querySelector('#scoreEl')
 const startGameBtn = document.querySelector('#startGameBtn')
 const modalEl = document.querySelector('#modalEl')
 const bigScoreEl = document.querySelector('#bigScoreEl')
+const highScoreText = document.querySelector('#highScoreText')
+
+let highScore = parseInt(localStorage.getItem('asterballs_highscore')) || 0
+highScoreText.innerHTML = 'Best: ' + highScore
 
 class Player {
     constructor(x, y, radius, color) {
@@ -118,11 +122,13 @@ function init() {
     particles = []
     score = 0
     scoreEl.innerHTML = score
-    bigScoreEl.innerHTML = score;
+    bigScoreEl.innerHTML = score
+    cancelAnimationFrame(animationId)
+    clearInterval(spawnIntervalId)
 }
 
 function spawnEnemies() {
-    setInterval(() => {
+    spawnIntervalId = setInterval(() => {
         const radius = Math.random() * (30 - 4) + 4
         let x
         let y
@@ -148,6 +154,7 @@ function spawnEnemies() {
 }
 
 let animationId
+let spawnIntervalId
 let score = 0
 function animate() {
     animationId = requestAnimationFrame(animate)
@@ -184,8 +191,14 @@ function animate() {
         // end game
         if (dist - enemy.radius - player.radius < 1) {
             cancelAnimationFrame(animationId)
+            clearInterval(spawnIntervalId)
+            if (score > highScore) {
+                highScore = score
+                localStorage.setItem('asterballs_highscore', highScore)
+            }
             modalEl.style.display = 'flex'
             bigScoreEl.innerHTML = score
+            highScoreText.innerHTML = 'Best: ' + highScore
         }
 
         projectiles.forEach((projectile, projectileIndex) => {
@@ -229,19 +242,42 @@ function animate() {
     })
 }
 
-addEventListener('click', (event) => {
-    const angle = Math.atan2(event.clientY - canvas.height / 2, event.clientX - canvas.width / 2)
+function shoot(clientX, clientY) {
+    const angle = Math.atan2(clientY - canvas.height / 2, clientX - canvas.width / 2)
     const velocity = {
         x: Math.cos(angle) * 4,
         y: Math.sin(angle) * 4
     }
     projectiles.push(new Projectile(x, y, 5, 'white', velocity))
+}
+
+canvas.addEventListener('click', (event) => {
+    shoot(event.clientX, event.clientY)
 })
 
-startGameBtn.addEventListener('click', () => {
+canvas.addEventListener('touchstart', (event) => {
+    event.preventDefault()
+}, { passive: false })
+
+canvas.addEventListener('touchend', (event) => {
+    event.preventDefault()
+    if (event.changedTouches.length > 0) {
+        const touch = event.changedTouches[0]
+        shoot(touch.clientX, touch.clientY)
+    }
+}, { passive: false })
+
+function startGame() {
     init()
     animate()
     spawnEnemies()
     modalEl.style.display = 'none'
     startGameBtn.innerHTML = "Restart"
+}
+
+startGameBtn.addEventListener('click', startGame)
+startGameBtn.addEventListener('touchend', (event) => {
+    event.preventDefault()
+    event.stopPropagation()
+    startGame()
 })
