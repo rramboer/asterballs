@@ -1,92 +1,647 @@
-﻿<!DOCTYPE html>
-<style>
-    @import url('https://fonts.googleapis.com/css2?family=Space+Mono&family=Ubuntu:wght@400;500;700&display=swap');
-    body {
-        margin: 0;
-        cursor: crosshair;
-        background: black;
-        font-family: 'Space Mono', sans-serif;
-        user-select: none;
-        overflow: hidden;
-        touch-action: none;
-    }
-    .scoring{
-        position: fixed;
-        font-weight: 500;
-        font-size: 24px;
-        color: white;
-        margin-left: 18px;
-        margin-top: 10px;
-    }
-    .box {
-        position: fixed;
-        top: 0;
-        right: 0;
-        bottom: 0;
-        left: 0;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-    .box .white-bg{
-        background: lightgray;
-        max-width: 448px;
-        width: 100%;
-        padding: 24px;
-        text-align: center;
-        border-radius: 10px;
-        font-family: 'Ubuntu', sans-serif;
-    }
-    .box .white-bg .number{
-        font-weight: bold;
-        font-size: 46px;
-        line-height: 1px;
-    }
-    .box .white-bg .points{
-        font-size: 24px;
-        line-height: 20px;
-        color: rgb(55, 65, 81);
-        margin-bottom: 10px;
-    }
-    .box .white-bg .button{
-        background: #004eff; /* blue from website theme */
-        color: white;
-        width: 100%;
-        padding-top: 15px;
-        padding-bottom: 15px;
-        border-radius: 60px;
-        font-weight: 700;
-        font-size: 30px;
-        font-family: 'Ubuntu', sans-serif;
-        transition: all 0.3s ease;
-    }
-    .box .white-bg .button:hover{
-        cursor: pointer;
-        background: white;
-        color: #004eff;
-        border-color: #004eff;
-    }
+<!DOCTYPE html>
+<html lang="en">
 
-</style>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<meta name="author" content="Ryan Ramboer"/>
-<meta name="keywords" content="Ryan Ramboer, Ramboer, ramboer, rramboer, game, asterballs"/>
-<meta name="description" content="HTML canvas game made entirely in vanilla JavaScript by Ryan Ramboer"/>
-<title>AsterBalls</title>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="author" content="Ryan Ramboer" />
+    <meta name="keywords" content="Ryan Ramboer, Ramboer, ramboer, rramboer, game, asterballs" />
+    <meta name="description" content="HTML canvas game made entirely in vanilla JavaScript by Ryan Ramboer" />
+    <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+    <meta property="og:title" content="AsterBalls" />
+    <meta property="og:description" content="Survive the onslaught. Click to shoot. How long can you last?" />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://rramboer.github.io/asterballs" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="AsterBalls" />
+    <meta name="twitter:description" content="Survive the onslaught. Click to shoot. How long can you last?" />
+    <title>AsterBalls</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Ubuntu:wght@400;500;700&display=swap');
 
-<div class="scoring"><span>Score: </span><span id="scoreEl">0</span></div>
+        body {
+            margin: 0;
+            cursor: crosshair;
+            background: black;
+            font-family: 'Space Mono', sans-serif;
+            user-select: none;
+            overflow: hidden;
+            touch-action: none;
+        }
 
-<div class="box" id="modalEl">
-    <div class="white-bg">
-        <h1 class="number" id="bigScoreEl">0</h1>
-        <p class="points">Points</p>
-        <p class="points" id="highScoreText">Best: 0</p>
-        <div><button class="button" id="startGameBtn">Start Game <i class="fa-solid fa-rocket"></i></button></div>
+        .scoring {
+            position: fixed;
+            z-index: 10;
+            font-weight: 700;
+            font-size: 20px;
+            color: rgba(255, 255, 255, 0.8);
+            margin-left: 18px;
+            margin-top: 12px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            text-shadow: 0 0 10px rgba(0, 78, 255, 0.5);
+        }
+
+        .box {
+            position: fixed;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            left: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: radial-gradient(ellipse at center, rgba(0, 20, 60, 0.6) 0%, rgba(0, 0, 0, 0.85) 70%);
+            backdrop-filter: blur(4px);
+        }
+
+        .box .modal-card {
+            background: linear-gradient(145deg, rgba(15, 20, 40, 0.95), rgba(8, 10, 25, 0.98));
+            max-width: 400px;
+            width: calc(100% - 48px);
+            padding: 40px 32px 32px;
+            text-align: center;
+            border-radius: 16px;
+            font-family: 'Ubuntu', sans-serif;
+            border: 1px solid rgba(0, 78, 255, 0.25);
+            box-shadow:
+                0 0 30px rgba(0, 78, 255, 0.15),
+                0 0 60px rgba(0, 78, 255, 0.05),
+                0 20px 60px rgba(0, 0, 0, 0.5);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .box .modal-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(0, 78, 255, 0.5), transparent);
+        }
+
+        .box .modal-card .game-title {
+            font-family: 'Space Mono', monospace;
+            font-size: 14px;
+            font-weight: 700;
+            letter-spacing: 6px;
+            text-transform: uppercase;
+            color: rgba(0, 150, 255, 0.6);
+            margin: 0 0 24px 0;
+        }
+
+        .box .modal-card .score-label {
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: rgba(255, 255, 255, 0.4);
+            margin: 0 0 4px 0;
+        }
+
+        .box .modal-card .number {
+            font-family: 'Space Mono', monospace;
+            font-weight: 700;
+            font-size: 56px;
+            line-height: 1.1;
+            color: white;
+            margin: 0 0 8px 0;
+            text-shadow: 0 0 20px rgba(0, 78, 255, 0.4);
+        }
+
+        .box .modal-card .divider {
+            width: 40px;
+            height: 2px;
+            background: linear-gradient(90deg, rgba(0, 78, 255, 0.6), rgba(0, 150, 255, 0.3));
+            margin: 16px auto;
+            border-radius: 1px;
+        }
+
+        .box .modal-card .best-score {
+            font-family: 'Space Mono', monospace;
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.6);
+            letter-spacing: 1px;
+            margin: 0 0 28px 0;
+        }
+
+        .box .modal-card .controls-hint {
+            font-family: 'Space Mono', monospace;
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.3);
+            letter-spacing: 1px;
+            margin: 0 0 24px 0;
+        }
+
+        .box .modal-card.title-screen .game-title {
+            font-size: 22px;
+            letter-spacing: 8px;
+            margin-bottom: 32px;
+        }
+
+        .box .modal-card.new-best .score-label {
+            color: rgba(255, 200, 50, 0.8);
+        }
+
+        .box .modal-card.new-best .number {
+            text-shadow: 0 0 20px rgba(255, 200, 50, 0.4);
+        }
+
+        .box .modal-card.new-best .divider {
+            background: linear-gradient(90deg, rgba(255, 200, 50, 0.6), rgba(255, 180, 0, 0.3));
+        }
+
+        .box .modal-card.new-best .best-score {
+            color: rgba(255, 200, 50, 0.7);
+        }
+
+        .box .modal-card .button {
+            background: linear-gradient(135deg, #004eff, #0070ff);
+            color: white;
+            width: 100%;
+            padding: 16px 0;
+            border: 2px solid transparent;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: 18px;
+            font-family: 'Ubuntu', sans-serif;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            transition: all 0.25s ease;
+            box-shadow: 0 4px 20px rgba(0, 78, 255, 0.3);
+            cursor: pointer;
+            outline: none;
+        }
+
+        .box .modal-card .button:hover {
+            background: transparent;
+            color: #4da0ff;
+            border-color: #004eff;
+            box-shadow: 0 0 25px rgba(0, 78, 255, 0.25), inset 0 0 25px rgba(0, 78, 255, 0.08);
+            transform: translateY(-1px);
+        }
+
+        .box .modal-card .button:active {
+            transform: translateY(1px);
+            box-shadow: 0 2px 10px rgba(0, 78, 255, 0.2);
+        }
+
+        .sound-toggle {
+            background: none;
+            border: none;
+            color: rgba(255, 255, 255, 0.35);
+            padding: 0;
+            cursor: pointer;
+            transition: color 0.2s ease;
+            outline: none;
+            position: absolute;
+            top: 16px;
+            right: 16px;
+        }
+
+        .sound-toggle:hover {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .debug-toggle {
+            background: none;
+            border: none;
+            color: rgba(255, 255, 255, 0.35);
+            padding: 0;
+            cursor: pointer;
+            transition: color 0.2s ease;
+            outline: none;
+            position: absolute;
+            top: 16px;
+            right: 52px;
+        }
+
+        .debug-toggle:hover {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .debug-hud {
+            display: none;
+            position: fixed;
+            bottom: 16px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 20;
+            gap: 10px;
+        }
+
+        .debug-hud.active {
+            display: flex;
+        }
+
+        .debug-hud button {
+            background: rgba(10, 15, 30, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 10px;
+            padding: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .debug-hud button:hover {
+            border-color: rgba(255, 255, 255, 0.4);
+            background: rgba(10, 15, 30, 0.9);
+        }
+
+        .debug-hud button.active-powerup {
+            border-color: rgba(255, 255, 255, 0.6);
+            box-shadow: 0 0 12px rgba(255, 255, 255, 0.15);
+        }
+
+        .legend-toggle {
+            background: none;
+            border: none;
+            color: rgba(255, 255, 255, 0.35);
+            padding: 0;
+            cursor: pointer;
+            transition: color 0.2s ease;
+            outline: none;
+            position: absolute;
+            top: 16px;
+            left: 16px;
+        }
+
+        .legend-toggle:hover {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .legend-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 100;
+            align-items: center;
+            justify-content: center;
+            background: radial-gradient(ellipse at center, rgba(0, 20, 60, 0.6) 0%, rgba(0, 0, 0, 0.9) 70%);
+            backdrop-filter: blur(4px);
+        }
+
+        .legend-overlay.open {
+            display: flex;
+        }
+
+        .legend-card {
+            background: linear-gradient(145deg, rgba(15, 20, 40, 0.95), rgba(8, 10, 25, 0.98));
+            max-width: 560px;
+            width: calc(100% - 32px);
+            max-height: calc(100vh - 40px);
+            overflow-y: auto;
+            padding: 32px 28px;
+            border-radius: 16px;
+            border: 1px solid rgba(0, 78, 255, 0.25);
+            box-shadow:
+                0 0 30px rgba(0, 78, 255, 0.15),
+                0 20px 60px rgba(0, 0, 0, 0.5);
+            position: relative;
+        }
+
+        .legend-close {
+            position: absolute;
+            top: 14px;
+            right: 14px;
+            background: none;
+            border: none;
+            color: rgba(255, 255, 255, 0.35);
+            cursor: pointer;
+            padding: 0;
+            transition: color 0.2s ease;
+            outline: none;
+        }
+
+        .legend-close:hover {
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .legend-title {
+            font-family: 'Space Mono', monospace;
+            font-size: 14px;
+            font-weight: 700;
+            letter-spacing: 6px;
+            text-transform: uppercase;
+            color: rgba(0, 150, 255, 0.6);
+            margin: 0 0 24px 0;
+            text-align: center;
+        }
+
+        .legend-section-label {
+            font-family: 'Space Mono', monospace;
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: rgba(255, 255, 255, 0.25);
+            margin: 0 0 12px 0;
+        }
+
+        .legend-divider {
+            width: 100%;
+            height: 1px;
+            background: rgba(255, 255, 255, 0.08);
+            margin: 16px 0;
+        }
+
+        .legend-items {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .legend-icon {
+            flex-shrink: 0;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .legend-icon svg {
+            width: 24px;
+            height: 24px;
+        }
+
+        .legend-icon .dot {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+        }
+
+        .legend-label {
+            font-family: 'Space Mono', monospace;
+            font-size: 13px;
+            font-weight: 700;
+            color: rgba(255, 255, 255, 0.85);
+            min-width: 90px;
+        }
+
+        .legend-desc {
+            font-family: 'Space Mono', monospace;
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.4);
+        }
+
+        @media (max-height: 600px) {
+            .legend-card {
+                padding: 24px 20px;
+            }
+
+            .legend-title {
+                font-size: 12px;
+                margin-bottom: 14px;
+            }
+
+            .legend-items {
+                gap: 6px;
+            }
+
+            .legend-divider {
+                margin: 10px 0;
+            }
+
+            .legend-label {
+                font-size: 11px;
+                min-width: 70px;
+            }
+
+            .legend-desc {
+                font-size: 10px;
+            }
+
+            .legend-icon {
+                width: 24px;
+                height: 24px;
+            }
+
+            .legend-icon svg {
+                width: 18px;
+                height: 18px;
+            }
+
+            .legend-icon .dot {
+                width: 12px;
+                height: 12px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .debug-hud {
+                gap: 6px;
+                bottom: 10px;
+            }
+
+            .debug-hud button {
+                padding: 6px;
+            }
+
+            .debug-hud button svg {
+                width: 22px;
+                height: 22px;
+            }
+
+            .box .modal-card {
+                padding: 32px 20px 24px;
+            }
+
+            .box .modal-card .number {
+                font-size: 42px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="scoring"><span>Score: </span><span id="scoreEl">0</span></div>
+
+    <div class="box" id="modalEl">
+        <div class="modal-card">
+            <button class="legend-toggle" id="legendToggle" title="Legend">
+                <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor"
+                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="8" y1="6" x2="21" y2="6" />
+                    <line x1="8" y1="12" x2="21" y2="12" />
+                    <line x1="8" y1="18" x2="21" y2="18" />
+                    <line x1="3" y1="6" x2="3.01" y2="6" />
+                    <line x1="3" y1="12" x2="3.01" y2="12" />
+                    <line x1="3" y1="18" x2="3.01" y2="18" />
+                </svg>
+            </button>
+            <button class="sound-toggle" id="soundToggle" title="Toggle sound">
+                <svg id="soundOn" viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor"
+                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
+                    <path d="M19.07 4.93a10 10 0 0 1 0 14.14" />
+                    <path d="M15.54 8.46a5 5 0 0 1 0 7.07" />
+                </svg>
+                <svg id="soundOff" viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor"
+                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none;">
+                    <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
+                    <line x1="23" y1="9" x2="17" y2="15" />
+                    <line x1="17" y1="9" x2="23" y2="15" />
+                </svg>
+            </button>
+            <button class="debug-toggle" id="debugToggle" title="Test mode">
+                <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor"
+                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M10 19.655A6 6 0 0 1 6 14v-3a4 4 0 0 1 4-4h4a4 4 0 0 1 4 3.97" />
+                    <path d="M14 15.003a1 1 0 0 1 1.517-.859l4.997 2.997a1 1 0 0 1 0 1.718l-4.997 2.997a1 1 0 0 1-1.517-.86z" />
+                    <path d="M14.12 3.88 16 2" />
+                    <path d="M21 5a4 4 0 0 1-3.55 3.97" />
+                    <path d="M3 21a4 4 0 0 1 3.81-4" />
+                    <path d="M3 5a4 4 0 0 0 3.55 3.97" />
+                    <path d="M6 13H2" />
+                    <path d="m8 2 1.88 1.88" />
+                    <path d="M9 7.13V6a3 3 0 1 1 6 0v1.13" />
+                </svg>
+            </button>
+            <p class="game-title">AsterBalls</p>
+            <div id="scoreSection" style="display: none;">
+                <p class="score-label" id="scoreLabel">Score</p>
+                <h1 class="number" id="bigScoreEl">0</h1>
+                <div class="divider" id="dividerEl"></div>
+                <p class="best-score" id="highScoreText">Best: 0</p>
+            </div>
+            <p class="controls-hint" id="controlsHint">Click or tap to shoot</p>
+            <div><button class="button" id="startGameBtn">Start Game</button></div>
+        </div>
     </div>
-</div>
 
-<canvas></canvas>
-<script src="https://kit.fontawesome.com/6e37128a3a.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.10.4/gsap.min.js"></script>
-<script src="index.js"></script>
+    <div class="legend-overlay" id="legendPanel">
+        <div class="legend-card">
+            <button class="legend-close" id="legendClose">
+                <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor"
+                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="18" y1="6" x2="6" y2="18" />
+                    <line x1="6" y1="6" x2="18" y2="18" />
+                </svg>
+            </button>
+            <p class="legend-title">Legend</p>
+
+            <p class="legend-section-label">Entities</p>
+            <div class="legend-items">
+                <div class="legend-item">
+                    <div class="legend-icon"><div class="dot" style="background:white;box-shadow:0 0 8px rgba(100,180,255,0.5);"></div></div>
+                    <div class="legend-label">Player</div>
+                    <div class="legend-desc">You. Don't let enemies reach you.</div>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-icon"><div class="dot" style="background:hsl(350,70%,50%);box-shadow:0 0 6px hsla(350,70%,50%,0.4);"></div></div>
+                    <div class="legend-label">Enemy</div>
+                    <div class="legend-desc">Shoot to shrink, then destroy.</div>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-icon"><div class="dot" style="width:20px;height:20px;background:hsl(270,70%,50%);box-shadow:0 0 8px hsla(270,70%,50%,0.4);border:2px solid hsl(270,70%,70%);"></div></div>
+                    <div class="legend-label">Boss</div>
+                    <div class="legend-desc">HP bar. Drops powerup. +1000 pts.</div>
+                </div>
+            </div>
+
+            <div class="legend-divider"></div>
+
+            <p class="legend-section-label">Power-ups</p>
+            <div class="legend-items">
+                <div class="legend-item">
+                    <div class="legend-icon">
+                        <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#00e5ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3h4v4"/><path d="M18.575 11.082a13 13 0 0 1 1.048 9.027 1.17 1.17 0 0 1-1.914.597L14 17"/><path d="M7 10 3.29 6.29a1.17 1.17 0 0 1 .6-1.91 13 13 0 0 1 9.03 1.05"/><path d="M7 14a1.7 1.7 0 0 0-1.207.5l-2.646 2.646A.5.5 0 0 0 3.5 18H5a1 1 0 0 1 1 1v1.5a.5.5 0 0 0 .854.354L9.5 18.207A1.7 1.7 0 0 0 10 17v-2a1 1 0 0 0-1-1z"/><path d="M9.707 14.293 21 3"/></svg>
+                    </div>
+                    <div class="legend-label" style="color:#00e5ff;">Tri-Shot</div>
+                    <div class="legend-desc">3 bullets per shot. Lasts 8s.</div>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-icon">
+                        <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#ffcc00" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z"/></svg>
+                    </div>
+                    <div class="legend-label" style="color:#ffcc00;">2x Damage</div>
+                    <div class="legend-desc">Double damage to all enemies. Lasts 8s.</div>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-icon">
+                        <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#ff4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="22" x2="18" y1="12" y2="12"/><line x1="6" x2="2" y1="12" y2="12"/><line x1="12" x2="12" y1="6" y2="2"/><line x1="12" x2="12" y1="22" y2="18"/></svg>
+                    </div>
+                    <div class="legend-label" style="color:#ff4444;">Instakill</div>
+                    <div class="legend-desc">One-shots any enemy. Lasts 5s.</div>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-icon">
+                        <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#ff00ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 12h.01"/><path d="M14 15.4641a4 4 0 0 1-4 0L7.52786 19.74597A1 1 0 0 0 7.99303 21.16211 10 10 0 0 0 16.00697 21.16211 1 1 0 0 0 16.47214 19.74597z"/><path d="M16 12a4 4 0 0 0-2-3.464l2.472-4.282a1 1 0 0 1 1.46-.305 10 10 0 0 1 4.006 6.94A1 1 0 0 1 21 12z"/><path d="M8 12a4 4 0 0 1 2-3.464L7.528 4.254a1 1 0 0 0-1.46-.305 10 10 0 0 0-4.006 6.94A1 1 0 0 0 3 12z"/></svg>
+                    </div>
+                    <div class="legend-label" style="color:#ff00ff;">Nuke</div>
+                    <div class="legend-desc">Destroys all regular enemies. Instant.</div>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-icon">
+                        <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#88ffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m10 20-1.25-2.5L6 18"/><path d="M10 4 8.75 6.5 6 6"/><path d="m14 20 1.25-2.5L18 18"/><path d="m14 4 1.25 2.5L18 6"/><path d="m17 21-3-6h-4"/><path d="m17 3-3 6 1.5 3"/><path d="M2 12h6.5L10 9"/><path d="m20 10-1.5 2 1.5 2"/><path d="M22 12h-6.5L14 15"/><path d="m4 10 1.5 2L4 14"/><path d="m7 21 3-6-1.5-3"/><path d="m7 3 3 6h4"/></svg>
+                    </div>
+                    <div class="legend-label" style="color:#88ffff;">Freeze</div>
+                    <div class="legend-desc">Freezes all enemies in place. Lasts 4s.</div>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-icon">
+                        <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#ff8800" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6"/><path d="M21 3 3 21"/><path d="m9 9 6 6"/></svg>
+                    </div>
+                    <div class="legend-label" style="color:#ff8800;">Laser</div>
+                    <div class="legend-desc">Near-instant projectiles. Lasts 6s.</div>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-icon">
+                        <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#44ff88" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="M9 12h6"/><path d="M12 9v6"/></svg>
+                    </div>
+                    <div class="legend-label" style="color:#44ff88;">Shield</div>
+                    <div class="legend-desc">Absorbs one hit. Until used.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="debug-hud" id="debugHud">
+        <button data-powerup="trishot" title="Tri-Shot">
+            <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="#00e5ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3h4v4"/><path d="M18.575 11.082a13 13 0 0 1 1.048 9.027 1.17 1.17 0 0 1-1.914.597L14 17"/><path d="M7 10 3.29 6.29a1.17 1.17 0 0 1 .6-1.91 13 13 0 0 1 9.03 1.05"/><path d="M7 14a1.7 1.7 0 0 0-1.207.5l-2.646 2.646A.5.5 0 0 0 3.5 18H5a1 1 0 0 1 1 1v1.5a.5.5 0 0 0 .854.354L9.5 18.207A1.7 1.7 0 0 0 10 17v-2a1 1 0 0 0-1-1z"/><path d="M9.707 14.293 21 3"/></svg>
+        </button>
+        <button data-powerup="damage" title="2x Damage">
+            <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="#ffcc00" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z"/></svg>
+        </button>
+        <button data-powerup="instakill" title="Instakill">
+            <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="#ff4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="22" x2="18" y1="12" y2="12"/><line x1="6" x2="2" y1="12" y2="12"/><line x1="12" x2="12" y1="6" y2="2"/><line x1="12" x2="12" y1="22" y2="18"/></svg>
+        </button>
+        <button data-powerup="nuke" title="Nuke">
+            <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="#ff00ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 12h.01"/><path d="M14 15.4641a4 4 0 0 1-4 0L7.52786 19.74597A1 1 0 0 0 7.99303 21.16211 10 10 0 0 0 16.00697 21.16211 1 1 0 0 0 16.47214 19.74597z"/><path d="M16 12a4 4 0 0 0-2-3.464l2.472-4.282a1 1 0 0 1 1.46-.305 10 10 0 0 1 4.006 6.94A1 1 0 0 1 21 12z"/><path d="M8 12a4 4 0 0 1 2-3.464L7.528 4.254a1 1 0 0 0-1.46-.305 10 10 0 0 0-4.006 6.94A1 1 0 0 0 3 12z"/></svg>
+        </button>
+        <button data-powerup="laser" title="Laser">
+            <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="#ff8800" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6"/><path d="M21 3 3 21"/><path d="m9 9 6 6"/></svg>
+        </button>
+        <button data-powerup="shield" title="Shield">
+            <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="#44ff88" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="M9 12h6"/><path d="M12 9v6"/></svg>
+        </button>
+        <button data-powerup="freeze" title="Freeze">
+            <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="#88ffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m10 20-1.25-2.5L6 18"/><path d="M10 4 8.75 6.5 6 6"/><path d="m14 20 1.25-2.5L18 18"/><path d="m14 4 1.25 2.5L18 6"/><path d="m17 21-3-6h-4"/><path d="m17 3-3 6 1.5 3"/><path d="M2 12h6.5L10 9"/><path d="m20 10-1.5 2 1.5 2"/><path d="M22 12h-6.5L14 15"/><path d="m4 10 1.5 2L4 14"/><path d="m7 21 3-6-1.5-3"/><path d="m7 3 3 6h4"/></svg>
+        </button>
+        <button id="debugExit" title="Exit test mode" style="margin-left: 28px;">
+            <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="#ff4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18" />
+                <line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
+        </button>
+    </div>
+
+    <canvas></canvas>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.10.4/gsap.min.js"></script>
+    <script src="index.js"></script>
+</body>
+
+</html>
